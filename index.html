@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RPG Todo</title>
+
+    <style>
+        :root {
+            --bg-0: #0b1220;
+            --bg-1: #0f1c32;
+            --panel: #1b2a3d;
+            --panel-2: #162433;
+            --border: #2b3b53;
+            --text: #e7eefc;
+            --muted: #9fb0c7;
+            --primary: #2f6bff;
+            --accent: #7c5cff;
+            --fs-14: 1.4rem;
+            --fs-16: 1.6rem;
+            --fs-18: 1.8rem;
+            --fs-22: 2.2rem;
+            --fw-500: 500;
+            --fw-600: 600;
+            --fw-700: 700;
+            --placeholder: rgba(231, 238, 252, 0.65)
+        }
+
+        body {
+            margin: 0;
+            color: var(--text);
+            background: radial-gradient(120rem 60rem at 30% 0%, var(--bg-1), var(--bg-0));
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+            font-size: var(--fs-16);
+            line-height: 1.5;
+        }
+
+        html {
+            font-size: 62.5%;
+        }
+
+        h2 {
+            margin: 0 0 1.6rem 0;
+            font-size: var(--fs-22);
+            font-weight: var(--fw-600);
+            letter-spacing: 0.02em;
+        }
+
+        h4 {
+            margin: 0 0 1rem 0;
+            font-size: var(--fs-16);
+            font-weight: var(--fw-600);
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        p,
+        li {
+            font-size: var(--fs-14);
+            color: var(--muted);
+        }
+
+
+        .layout {
+            display: grid;
+            grid-template-columns: 26rem 1fr 22rem;
+            gap: 1.6rem;
+            padding: 1.6rem;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+
+        @media (max-width: 76.8rem) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .xpBar {
+            width: 100%;
+            height: 1.5rem;
+            background-color: var(--border);
+            border-radius: 0.8rem;
+            overflow: hidden;
+        }
+
+        .xpFill {
+            width: 0%;
+            height: 1.5rem;
+            background-color: var(--primary);
+            transition: width 0.3s;
+        }
+
+        .questItem {
+            flex-direction: column;
+            padding: 1.6rem;
+            border: 1px solid var(--border);
+            border-radius: 0.6rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: stretch;
+            gap: 1rem;
+            box-shadow: 0 0.8rem 2.4rem rgba(0, 0, 0, 0.35);
+            min-height: 14rem;
+            transition: 0.2s ease;
+            background: linear-gradient(180deg, var(--panel-2), #30435a);
+        }
+
+        .questItem:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+        }
+
+        .questActions {
+            display: flex;
+            gap: 0.8rem;
+            margin-top: auto;
+        }
+
+
+        .completed {
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+
+        .panel {
+            padding: 1.6rem;
+            border: 1px solid var(--border);
+            border-radius: 1.2rem;
+            background: linear-gradient(180deg, var(--panel), var(--panel-2));
+            box-shadow: 0 0.8rem 2.4rem rgba(0, 0, 0, 0.35);
+        }
+
+        .statLabel {
+            font-weight: var(--fw-600);
+            color: var(--muted);
+        }
+
+        .statValue {
+            font-weight: var(--fw-700);
+            color: var(--text);
+            font-weight: var(--fw-700);
+            color: var(--text);
+            background: rgba(47, 107, 255, 0.15);
+            padding: 0.2rem 0.8rem;
+            border-radius: 999px;
+            border: 1px solid rgba(47, 107, 255, 0.35);
+            min-width: 2.8rem;
+            text-align: center;
+        }
+
+
+        input,
+        select {
+            background-color: var(--panel-2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 0.6rem;
+            padding: 0.8rem 1rem;
+            outline: none;
+        }
+
+        input::placeholder {
+            color: var(--placeholder);
+        }
+
+        input:focus,
+        select:focus {
+            border: 1px solid var(--primary);
+            box-shadow: 0 0 0 0.2rem rgba(47, 107, 255, 0.25);
+        }
+
+        .questList {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(24rem, 1fr));
+            gap: 1.2rem;
+            margin-top: 1rem;
+        }
+
+        .questForm {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .questForm button {
+            width: 100%;
+        }
+
+        .questRow {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr 0.8fr;
+            gap: 1rem;
+        }
+
+        #addBtn {
+            background-color: var(--primary);
+            color: var(--text);
+            border: none;
+            border-radius: 0.8rem;
+            padding: 1rem 1.2rem;
+            font-weight: var(--fw-600);
+            cursor: pointer;
+        }
+
+        #addBtn:hover {
+            filter: brightness(1.18)
+        }
+
+        .btn {
+            border: none;
+            border-radius: 0.6rem;
+            padding: 0.6rem 1rem;
+            font-size: var(--fs-14);
+            font-weight: var(--fw-600);
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .btn-success {
+            background: #2b7cff;
+            color: var(--text);
+        }
+
+        .btn-danger {
+            background: #c94f5c;
+            color: var(--text);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+
+        }
+
+        .btn:disabled:hover {
+            filter: none;
+        }
+
+        .btn:hover {
+            filter: brightness(1.05);
+        }
+
+        .questCompleted {
+            opacity: 0.6;
+        }
+
+        .profile {
+            display: flex;
+            flex-direction: column;
+            gap: 1.6rem;
+        }
+
+        .heroCard {
+            background: linear-gradient(180deg,
+                    rgba(27, 42, 61, 1) 0%,
+                    rgba(22, 36, 51, 1) 100%);
+            border: 1px solid rgba(124, 92, 255, 0.35);
+            border-radius: 1.6rem;
+            padding: 2rem;
+            display: grid;
+            gap: 1.2rem;
+            box-shadow:
+                0 1.2rem 2.8rem rgba(0, 0, 0, 0.35),
+                0 0 0 0.2rem rgba(124, 92, 255, 0.25);
+        }
+
+        .avatarWrapper {
+            position: relative;
+            width: 10rem;
+            margin: 0 auto 1.2rem;
+        }
+
+        .avatar {
+            width: 10rem;
+            height: 10rem;
+            border-radius: 50%;
+            background: #cfd8ff;
+            border: 0.3rem solid rgba(47, 107, 255, 0.6);
+            box-shadow: 0 0 0 0.6rem rgba(47, 107, 255, 0.15);
+        }
+
+        .levelBadge {
+            position: absolute;
+            right: -0.4rem;
+            bottom: -0.4rem;
+            background: var(--accent);
+            color: var(--text);
+            font-size: 1.2rem;
+            font-weight: var(--fw-700);
+            padding: 0.4rem 0.8rem;
+            border-radius: 999px;
+            border: 0.2rem solid rgba(231, 238, 252, 0.25);
+        }
+
+        .xpHeader {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.2rem;
+            margin-bottom: 0.6rem;
+        }
+
+        .xpLabel {
+            color: var(--muted);
+            letter-spacing: 0.08em;
+        }
+
+        .xpValue {
+            color: var(--text);
+            font-weight: var(--fw-600);
+        }
+
+        .traitsCard {
+            background: rgba(22, 36, 51, 0.6);
+            border: 1px solid var(--border);
+            border-radius: 1.2rem;
+            padding: 1.6rem;
+        }
+
+        .traitsCard p {
+            display: flex;
+            justify-content: space-between;
+            margin: 0.8rem 0 0 0;
+        }
+
+        .traitsCard p:hover .statValue {
+            background: rgba(47, 107, 255, 0.25);
+        }
+
+        .traitsCard h4 {
+            margin-bottom: 1.2rem;
+        }
+
+        .achievementItem {
+            padding: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            background: var(--panel-2);
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .achBar {
+            width: 100%;
+            height: 0.8rem;
+            background: var(--border);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .achFill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            width: 0%;
+            transition: 0.3s ease;
+        }
+
+        .achievementsList {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+            margin-top: 1.2rem;
+        }
+
+        .achievementItem {
+            border: 1px solid var(--border);
+            border-radius: 1.2rem;
+            padding: 1.2rem;
+            background: linear-gradient(180deg, var(--panel-2), rgba(27, 42, 61, 0.9));
+            box-shadow: 0 0.8rem 2.4rem rgba(0, 0, 0, 0.30);
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .achievementItem>div:first-of-type {
+
+            font-size: var(--fs-14);
+            font-weight: var(--fw-700);
+            color: var(--text);
+            letter-spacing: 0.02em;
+        }
+
+        .achievementItem>div:nth-of-type(2) {
+            font-size: 1.2rem;
+            color: var(--muted);
+        }
+
+        .achBar {
+            height: 0.9rem;
+            background: rgba(43, 59, 83, 0.9);
+            /* var(--border) biraz yumuşatıldı */
+            border: 1px solid rgba(231, 238, 252, 0.08);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .achFill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent), var(--primary));
+            border-radius: 999px;
+            transition: width 0.25s ease;
+        }
+
+
+        .achievementItem.isDone {
+            border-color: rgba(124, 92, 255, 0.7);
+            box-shadow:
+                0 0.8rem 2.4rem rgba(0, 0, 0, 0.30),
+                0 0 0 0.2rem rgba(124, 92, 255, 0.18);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="layout">
+        <aside class="sidebar-left panel">
+            <div class="profile">
+                <div class="heroCard">
+                    <div class="avatarWrapper">
+                        <div class="avatar"></div>
+                        <p class="levelBadge">LVL <span id="level">1</span></p>
+                    </div>
+
+                    <div class="xpHeader">
+                        <span class="xpLabel">XP PROGRESS</span>
+                        <span class="xpValue">
+                            <span id="xp">0</span> / 100
+                        </span>
+                    </div>
+
+                    <div class="xpBar">
+                        <div class="xpFill"></div>
+                    </div>
+                </div>
+                <div class="traitsCard">
+                    <h4>Class Traits</h4>
+                    <p>
+                        <span class="statLabel">Strength:</span>
+                        <span id="strStat" class="statValue">0</span>
+                    </p>
+
+                    <p>
+                        <span class="statLabel">Intelligent:</span>
+                        <span id="intStat" class="statValue">0</span>
+                    </p>
+
+                    <p>
+                        <span class="statLabel">Stamina:</span>
+                        <span id="staStat" class="statValue">0</span>
+                    </p>
+                </div>
+            </div>
+        </aside>
+
+        <main class="panel">
+
+            <h2>Active Quests</h2>
+            <div class="questForm">
+                <input type="text" id="questInput" placeholder="Görev">
+                <div class="questRow">
+                    <select id="statInput">
+                        <option value="STR">STR</option>
+                        <option value="INT">INT</option>
+                        <option value="STA">STA</option>
+                    </select>
+                    <input type="number" id="statValueInput" placeholder="Stat Artışı" value="1">
+                    <input type="number" id="xpInput" placeholder="XP Yazınız" value="">
+                </div>
+                <button id="addBtn">Görev Ekle</button>
+            </div>
+
+            <div class="questList"></div>
+
+        </main>
+        <aside class="sidebar-right panel">
+            <h4>Achievements</h4>
+            <div class="achievementsList"></div>
+
+        </aside>
+    </div>
+    <script src="app.js"></script>
+
+</body>
+
+</html>
